@@ -10,7 +10,7 @@ RSpec.describe Api::RequirementTemplatesController, type: :controller do
   before { sign_in super_admin }
 
   describe "POST #create" do
-    context "It creates a requirement template" do
+    context "It creates a live requirement template" do
       it "returns a successful response with the correct data structure" do
         post :create,
              params: {
@@ -21,7 +21,8 @@ RSpec.describe Api::RequirementTemplatesController, type: :controller do
                  permit_type_id: permit_type.id,
                  requirement_template_sections_attributes: [
                    { name: "one section", position: 1 }
-                 ]
+                 ],
+                 type: LiveRequirementTemplate.name
                }
              }
         expect(response).to have_http_status(:success)
@@ -33,7 +34,7 @@ RSpec.describe Api::RequirementTemplatesController, type: :controller do
 
       it "does not create a requirement template when an exisitng template has the same combination of permit type and activity" do
         create(
-          :requirement_template,
+          :live_requirement_template,
           activity: activity,
           permit_type: permit_type
         )
@@ -46,6 +47,7 @@ RSpec.describe Api::RequirementTemplatesController, type: :controller do
                    first_nations: false,
                    activity_id: activity.id,
                    permit_type_id: permit_type.id,
+                   type: LiveRequirementTemplate.name,
                    requirement_template_sections_attributes: [
                      { name: "another section", position: 1 }
                    ]
@@ -64,7 +66,7 @@ RSpec.describe Api::RequirementTemplatesController, type: :controller do
 
       it "creates a requirement template when the activity and permit type are the same, but first nations is true" do
         create(
-          :requirement_template,
+          :live_requirement_template,
           activity: activity,
           permit_type: permit_type,
           first_nations: false
@@ -92,9 +94,9 @@ RSpec.describe Api::RequirementTemplatesController, type: :controller do
         )
       end
 
-      it "copies sections from an existing non-first-nation requirement template when copy_existing is true" do
+      it "copies sections from an existing non-first-nation requirement template when providing classifications to copy endpoint" do
         create(
-          :requirement_template,
+          :live_requirement_template,
           activity: activity,
           permit_type: permit_type,
           first_nations: false,
@@ -105,14 +107,13 @@ RSpec.describe Api::RequirementTemplatesController, type: :controller do
         )
 
         expect {
-          post :create,
+          post :copy,
                params: {
                  requirement_template: {
                    description: "a copied template with first nations",
-                   first_nations: true,
                    activity_id: activity.id,
                    permit_type_id: permit_type.id,
-                   copy_existing: true
+                   first_nations: true
                  }
                }
         }.to change(RequirementTemplate, :count).by(1)

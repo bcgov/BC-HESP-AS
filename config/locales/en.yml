@@ -37,6 +37,10 @@ en:
         first_nations: "First Nations"
     errors:
       models:
+        jurisdiction:
+          no_sandboxes: "Jurisdiction must have at least one sandbox."
+        jurisdiction_template_version_customizations:
+          uniqueness: "already exists for this jurisdiction and template version."
         site_configuration:
           single_record: "There can only be one SiteConfiguration record."
           attributes:
@@ -58,8 +62,13 @@ en:
           duplicate_energy_step_code: 'Multiple "Energy step code" requirements found. Please ensure there is only one "Energy step code" requirement in the template'
           duplicate_step_code_package: 'Multiple "Design package energy step code files" found. Please ensure there is only one "Design package energy step code file" when there is an "Energy step code" requirement'
           nonunique_classification: "There can only be one requirement template per permit type, activity, and First Nations combination"
+          attributes:
+            template_versions:
+              published_required_for_early_access: "requires one published template version"
         requirement_block:
           attributes:
+            visibility:
+              wrong_requirement_template_type: "can only be 'early_access' if associated templates are also early access"
             requirements:
               incorrect_energy_step_code_dependencies: "missing or duplicate energy step code dependencies"
               duplicate_step_code_package_file: "must have only one design package file for energy step code per requirement block"
@@ -281,6 +290,9 @@ en:
       eula_accepted:
         title: ""
         message: "End-User License Agreement accepted"
+      get_super_admins_error:
+        title: "Error"
+        message: "Could not fetch super users"
     requirement_block:
       create_error:
         title: Error
@@ -331,7 +343,7 @@ en:
         message: "New template created successfully!"
       update_success:
         title: ""
-        message: "This version has been saved as a draft."
+        message: "This draft has been saved."
       schedule_success:
         title: ""
         message: "Permit has been scheduled to published."
@@ -339,6 +351,12 @@ en:
         title: ""
         message: "Permit has been published."
       create_error:
+        title: Error
+        message: "%{error_message}"
+      copy_success:
+        title: ""
+        message: "New template copied successfully!"
+      copy_error:
         title: Error
         message: "%{error_message}"
       destroy_success:
@@ -445,6 +463,7 @@ en:
       create_or_update_permit_block_status_error:
         title: Error
         message: "There was an error updating permit block status"
+
     permit_collaboration:
       destroy_success:
         title: ""
@@ -502,6 +521,12 @@ en:
       update_error:
         title: Error
         message: "Something went wrong updating Jurisdiction Customization"
+      promote_success:
+        title: ""
+        message: "Jurisdiction Template Customization promoted!"
+      promote_error:
+        title: Error
+        message: "Something went wrong promoting jurisdiction customization"
     integration_mapping:
       update_success:
         title: ""

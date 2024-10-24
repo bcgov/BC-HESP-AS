@@ -10,6 +10,11 @@ export enum EPermitClassificationType {
   Activity = "Activity",
 }
 
+export enum ERequirementTemplateType {
+  EarlyAccessRequirementTemplate = "EarlyAccessRequirementTemplate",
+  LiveRequirementTemplate = "LiveRequirementTemplate",
+}
+
 export enum EPermitClassificationCode {
   lowResidential = "low_residential",
   mediumResidential = "medium_residential",
@@ -25,6 +30,7 @@ export enum EPermitApplicationStatus {
   newlySubmitted = "newly_submitted",
   revisionsRequested = "revisions_requested",
   resubmitted = "resubmitted",
+  ephemeral = "ephemeral",
 }
 
 export enum EPermitApplicationStatusGroup {
@@ -90,6 +96,16 @@ export enum ERequirementTemplateSortFields {
   description = "description",
   currentVersion = "current_version",
   jurisdictionsSize = "jurisdictions_size",
+}
+
+export enum EEarlyAccessRequirementTemplateSortFields {
+  nickname = "nickname",
+  permitType = "permit_type",
+  activity = "activity",
+  firstNations = "first_nations",
+  sharedWith = "shared_with",
+  updatedAt = "updated_at",
+  assignee = "assignee",
 }
 
 export enum EContactSortFields {
@@ -405,6 +421,12 @@ export enum ECollaborationType {
 export enum ECollaboratorType {
   delegatee = "delegatee",
   assignee = "assignee",
+}
+
+export enum EVisibility {
+  live = "live",
+  earlyAccess = "early_access",
+  any = "any",
 }
 
 export enum EJurisdictionExternalApiState {

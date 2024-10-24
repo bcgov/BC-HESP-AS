@@ -23,7 +23,6 @@ import React, { useEffect, useState } from "react"
 import { Controller, FormProvider, useForm, useFormContext } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
-import { IJurisdiction } from "../../../models/jurisdiction"
 import { useMst } from "../../../setup/root"
 import { IOption } from "../../../types/types"
 import { BlueTitleBar } from "../../shared/base/blue-title-bar"
@@ -44,9 +43,10 @@ export type TCreatePermitApplicationFormData = {
   pin?: string
   permitTypeId: string
   activityId: string
-  jurisdiction: IJurisdiction
+  jurisdictionId: string
   site?: IOption
   firstNations: boolean
+  sandboxId: string
 }
 
 export const NewPermitApplicationScreen = observer(({}: INewPermitApplicationScreenProps) => {
@@ -59,15 +59,18 @@ export const NewPermitApplicationScreen = observer(({}: INewPermitApplicationScr
       permitTypeId: "",
       activityId: "",
       site: null as IOption,
-      jurisdiction: null as IJurisdiction,
+      jurisdictionId: "",
       firstNations: null,
+      sandboxId: null,
     },
   })
-  const { handleSubmit, formState, control, watch, register, setValue } = formMethods
+  const { handleSubmit, formState, control, watch, setValue } = formMethods
   const { isSubmitting } = formState
-  const { permitClassificationStore, permitApplicationStore, geocoderStore } = useMst()
+  const { permitClassificationStore, permitApplicationStore, geocoderStore, jurisdictionStore, sandboxStore } = useMst()
   const { fetchGeocodedJurisdiction, fetchingPids, fetchSiteDetailsFromPid } = geocoderStore
   const { fetchPermitTypeOptions, fetchActivityOptions } = permitClassificationStore
+  const { getJurisdictionById } = jurisdictionStore
+  const { currentSandboxId } = sandboxStore
   const navigate = useNavigate()
 
   const [pinMode, setPinMode] = useState(false)
@@ -76,7 +79,6 @@ export const NewPermitApplicationScreen = observer(({}: INewPermitApplicationScr
     const params = {
       ...formValues,
       fullAddress: formValues.site.label,
-      jurisdictionId: formValues.jurisdiction.id,
     }
     const permitApplication = await permitApplicationStore.createPermitApplication(params)
     if (permitApplication) {
@@ -88,7 +90,7 @@ export const NewPermitApplicationScreen = observer(({}: INewPermitApplicationScr
   const pidWatch = watch("pid")
   const pinWatch = watch("pin")
   const siteWatch = watch("site")
-  const jurisdictionWatch = watch("jurisdiction")
+  const jurisdictionIdWatch = watch("jurisdictionId")
   const firstNationsWatch = watch("firstNations")
 
   useEffect(() => {
@@ -96,7 +98,7 @@ export const NewPermitApplicationScreen = observer(({}: INewPermitApplicationScr
 
     if (siteWatch?.value == "") {
       setPinMode(true)
-      setValue("jurisdiction", null)
+      setValue("jurisdictionId", null)
       return
     }
 
@@ -104,10 +106,10 @@ export const NewPermitApplicationScreen = observer(({}: INewPermitApplicationScr
       const jurisdiction = await fetchGeocodedJurisdiction(siteWatch?.value, pidWatch)
       if (jurisdiction && !R.isEmpty(jurisdiction)) {
         setPinMode(false)
-        setValue("jurisdiction", jurisdiction)
+        setValue("jurisdictionId", jurisdiction.id)
       } else {
         setPinMode(true)
-        setValue("jurisdiction", null)
+        setValue("jurisdictionId", null)
       }
     })()
   }, [siteWatch?.value, pidWatch])
@@ -119,7 +121,7 @@ export const NewPermitApplicationScreen = observer(({}: INewPermitApplicationScr
         <DisclaimerInfo />
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormProvider {...formMethods}>
-            <Flex direction="column" gap={12} w="full" bg="greys.white">
+            <Flex direction="column" gap={8} w="full" bg="greys.white">
               <Flex as="section" direction="column" gap={4}>
                 <Heading as="h2" variant="yellowline">
                   {t("permitApplication.new.locationHeading")}
@@ -147,8 +149,20 @@ export const NewPermitApplicationScreen = observer(({}: INewPermitApplicationScr
                 />
                 {pinMode && <PinModeInputs disabled={fetchingPids} />}
               </Flex>
-              {jurisdictionWatch && (pidWatch || pinWatch) && (
-                <Flex as="section" direction="column" gap={2}>
+              {jurisdictionIdWatch && (pidWatch || pinWatch) && (
+                <Flex as="section" direction="column" gap={8}>
+                  {/* TODO: Enable sandboxes */}
+                  {/* {jurisdiction?.sandboxOptions &&  (
+                    <Can action="jurisdiction:create">
+                      <Flex as="section" direction="column" gap={4}>
+                        <Heading as="h2" variant="yellowline">
+                          {t("permitApplication.new.sandboxIdHeading")}
+                        </Heading>
+
+                        <NewPermitApplicationSandboxSelect options={jurisdiction.sandboxOptions} />
+                      </Flex>
+                    </Can>
+                  )} */}
                   <FormLabel htmlFor="firstNations">{t("permitApplication.new.forFirstNations")}</FormLabel>
                   <Controller
                     name="firstNations"
@@ -180,9 +194,11 @@ export const NewPermitApplicationScreen = observer(({}: INewPermitApplicationScr
                             <PermitTypeRadioSelect
                               w={{ base: "full", md: "50%" }}
                               fetchOptions={() => {
-                                return fetchPermitTypeOptions(true, firstNationsWatch, pidWatch, jurisdictionWatch.id)
+                                setValue("permitTypeId", null)
+                                setValue("activityId", null)
+                                return fetchPermitTypeOptions(true, firstNationsWatch, pidWatch, jurisdictionIdWatch)
                               }}
-                              dependencyArray={[firstNationsWatch, pidWatch, jurisdictionWatch.id]}
+                              dependencyArray={[firstNationsWatch, pidWatch, jurisdictionIdWatch, currentSandboxId]}
                               onChange={onChange}
                               value={value}
                             />
@@ -199,7 +215,10 @@ export const NewPermitApplicationScreen = observer(({}: INewPermitApplicationScr
                     {t("permitApplication.new.workTypeHeading")}
                   </Heading>
                   <ActivityList
-                    fetchOptions={() => fetchActivityOptions(true, firstNationsWatch, permitTypeIdWatch)}
+                    fetchOptions={() => {
+                      setValue("activityId", null)
+                      return fetchActivityOptions(true, firstNationsWatch, permitTypeIdWatch)
+                    }}
                     permitTypeId={permitTypeIdWatch}
                   />
                 </Flex>

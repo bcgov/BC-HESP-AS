@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe TemplateVersioningService, type: :service do
   let!(:requirement_template) do
-    create(:full_requirement_template, sections_count: 3)
+    create(:live_full_requirement_template, sections_count: 3)
   end
 
   describe "schedule!" do
@@ -251,7 +251,7 @@ RSpec.describe TemplateVersioningService, type: :service do
         permit_type = create(:permit_type, code: :medium_residential)
         requirement_template_2 =
           create(
-            :full_requirement_template,
+            :live_full_requirement_template,
             permit_type: permit_type,
             sections_count: 1
           )
@@ -314,7 +314,7 @@ RSpec.describe TemplateVersioningService, type: :service do
         permit_type = create(:permit_type, code: :medium_residential)
         requirement_template_2 =
           create(
-            :full_requirement_template,
+            :live_full_requirement_template,
             permit_type: permit_type,
             sections_count: 1
           )

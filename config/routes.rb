@@ -81,6 +81,7 @@ Rails.application.routes.draw do
       post "template_versions/:id/unschedule",
            on: :collection,
            to: "requirement_templates#unschedule_template_version"
+      post "copy", on: :collection
     end
 
     resources :template_versions, only: %i[index show] do
@@ -99,6 +100,9 @@ Rails.application.routes.draw do
           post "jurisdiction_template_version_customization",
                to:
                  "template_versions#create_or_update_jurisdiction_template_version_customization"
+          post "jurisdiction_template_version_customization/promote",
+               to:
+                 "template_versions#promote_jurisdiction_template_version_customization"
           post "copy_jurisdiction_template_version_customization",
                to:
                  "template_versions#copy_jurisdiction_template_version_customization"
@@ -185,6 +189,7 @@ Rails.application.routes.draw do
       get "current_user/license_agreements",
           on: :collection,
           to: "users#license_agreements"
+      get "super_admins", on: :collection, to: "users#super_admins"
     end
     resources :users, only: %i[destroy update] do
       patch "restore", on: :member

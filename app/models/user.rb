@@ -74,6 +74,8 @@ class User < ApplicationRecord
   after_save :create_jurisdiction_collaborator,
              if: :saved_change_to_discarded_at
 
+  delegate :sandboxes, to: :jurisdiction
+
   def confirmation_required?
     false
   end

@@ -137,6 +137,7 @@ const options = {
           delete: "Delete",
           confirmDelete: "Confirm delete",
           confirmation: "Are you sure you want to proceed?",
+          confirmOverwrite: "Are you sure you want to save and overwrite this item?",
           sureDelete: "Are you sure you want to delete this item?",
           disable: "Disable",
           ok: "OK",
@@ -233,6 +234,13 @@ const options = {
           markedForRemoval: 'Click "Save changes" to confirm removal',
           proceed: "Proceed",
           copyNoun: "Copy",
+          options: "Options",
+          na: "N/A",
+          share: "Share",
+          unassigned: "Unassigned",
+          unassign: "Unassign",
+          seeEarlyAccessButton: "See Early Access",
+          seeLiveButton: "See Live",
         },
         notification: {
           title: "Notifications",
@@ -496,6 +504,7 @@ const options = {
             newly_submitted: "Submitted",
             resubmitted: "Resubmitted",
             revisions_requested: "Revisions Requested",
+            ephemeral: "Preview",
           },
           statusGroup: {
             draft: "Draft permits",
@@ -525,6 +534,8 @@ const options = {
           },
           new: {
             locationHeading: "Location for permit",
+            sandboxIdHeading: "Submit into Sandbox",
+            selectSandboxLabel: "Select a sandbox to submit into",
             forFirstNations: "Is this permit for First Nations lands?",
             permitTypeHeading: "Permit type",
             workTypeHeading: "Work type",
@@ -634,6 +645,17 @@ const options = {
             },
           },
         },
+        sandbox: {
+          formLabel: "Sandbox",
+          live: "Live",
+        },
+        earlyAccessRequirementsLibrary: {
+          index: {
+            title: "Early access requirements library",
+            description: "TODO description",
+            tableHeading: "Early access requirement blocks",
+          },
+        },
         requirementsLibrary: {
           addAnother: "Add",
           addAnotherPerson: "Add another person",
@@ -677,6 +699,8 @@ const options = {
               },
             },
             clickToWriteDisplayName: "Click to write display name",
+            clickToWriteDescription: "Click to write description",
+            clickToWriteNickname: "Click to write nickname",
             blockSetupTitle: "Block setup",
             internalUse: "For internal use only",
             configureFields: "Configure the form fields below that submitters will see:",
@@ -1182,6 +1206,12 @@ const options = {
           requirementsLibraryTitle: "Requirements library",
           requirementsLibraryDescription:
             "Construct and maintain requirement blocks that form the core structure of permit templates. This library allows you to create, update, and manage the questions that define each requirement block.",
+          earlyAccess: {
+            title: "Early Access",
+            adminDescription: "{TODO early access description}",
+            previews: { title: "Early access previews", description: "{TODO preview description}" },
+            requirements: { title: "Early access requirements", description: "{TODO requiremet description}" },
+          },
           configurationManagement: {
             title: "Configuration management",
             reviewManagerDescription:
@@ -1380,6 +1410,43 @@ const options = {
             super_admin:
               "The Super Admin is the highest-level user within the system, with overarching control over the entire permit application platform. They have the authority to manage user roles, including creating and removing user accounts, and to modify the system configuration. This role is responsible for the maintenance of the system, including updates and enhancements, and ensuring that the system meets the operational and strategic objectives of the local government or the organization.",
           },
+          assignTo: "Assign to...",
+        },
+        earlyAccessRequirementTemplate: {
+          show: {},
+          index: {
+            tableHeading: "Previews",
+            title: "Early access templates catalogue",
+            invitationInfo:
+              "Early access previews are non-submittable and accessible only by registered users who are invited. Access is granted for 60 days and can be extended or revoked at any time.",
+            createButton: "Create new early access template",
+            seeArchivedButton: "See archived",
+          },
+          new: {
+            title: "Create new preview",
+            modalTitle: "Create new preview",
+            startingFresh: "Starting fresh?",
+            addFromExisitng: "Add requirements from an exisitng permit?",
+            startWithBlank: "Start with blank permit",
+            copyFromLive: "Copy from live permit",
+            copyFromThis: "Copy from this",
+          },
+          edit: {
+            lastFetched: "Last fetched",
+            fetchLatest: "Fetch latest",
+            auditLog: "Audit log",
+            confirmRemoveModalTitle: "Archive preview?",
+            confirmRemoveModalBody: "This preview will no longer be accessible by invitees",
+          },
+          fields: {
+            nickname: "Nickname",
+            permitType: "Permit type",
+            activity: "Work type",
+            firstNations: "First nations?",
+            sharedWith: "Shared with",
+            updatedAt: "Updated at",
+            assignee: "Assigned",
+          },
         },
         requirementTemplate: {
           compareAction: 'Requirement "{{ requirementName }}" has been {{ action }}',
@@ -1392,6 +1459,9 @@ const options = {
               copyTips: "Import tips from ({{ templateLabel }})",
               copyElectives: "Import electives from ({{ templateLabel }})",
             },
+            promoteElectives: "Save and promote",
+            promoteElectivesMessage:
+              "This will publish your sandboxed customizations and overwrite your non-sandboxed live electives!",
             clickToWriteDescription: "Click to write description",
             title: "Permit Application Builder",
             dndTitle: "Drag to reorder",
@@ -1467,7 +1537,7 @@ const options = {
             tableHeading: "Templates",
             title: "Permit templates catalogue",
             description:
-              "List of all permit templates in the system that's been created by the Super Admin. Only Published templates will be visible to jurisdictions and submitters.",
+              "List of all permit templates in the system that's been created by the Super Admin. Only published templates will be visible to jurisdictions and submitters.",
             createButton: "Create new template",
             seeArchivedButton: "See archived",
           },
@@ -1478,7 +1548,7 @@ const options = {
               "Provide some context for review managers and administrators on what kinds of buildings this permit is meant for.",
             createButton: "Create template",
             firstNationsLand: "This permit is intended <1>only for First Nations land</1>",
-            copyExisting: "Copy from existing template of this permit and work type if available",
+            copyExistingByClassifications: "Copy from existing template of this permit and work type if available",
           },
           versionSidebar: {
             triggerButton: "Versions",
@@ -1818,6 +1888,7 @@ const options = {
             revisionReasonSetup: "Revision reason setup",
             acceptInvitation: "Accept invitation",
             eula: "End user license agreement",
+            earlyAccess: "Early access",
           },
         },
         automatedCompliance: {

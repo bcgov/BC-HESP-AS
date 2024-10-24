@@ -20,12 +20,14 @@ class RequirementBlock < ApplicationRecord
 
   enum sign_off_role: { any: 0 }, _prefix: true
   enum reviewer_role: { any: 0 }, _prefix: true
+  enum visibility: { any: 0, early_access: 1, live: 2 }, _default: 0
 
   validates :sku, uniqueness: true, presence: true
   validates :name, presence: true, uniqueness: { scope: :first_nations }
   validates :display_name, presence: true
   validate :validate_step_code_dependencies
   validate :validate_requirements_conditional
+  validate :early_access_on_appropriate_template
 
   before_validation :set_sku, on: :create
 
@@ -35,6 +37,10 @@ class RequirementBlock < ApplicationRecord
 
   after_discard { template_section_blocks.destroy_all }
 
+  def sections
+    requirement_template_sections
+  end
+
   def search_data
     {
       updated_at: updated_at,
@@ -43,7 +49,8 @@ class RequirementBlock < ApplicationRecord
       requirement_labels: requirements.pluck(:label),
       associations: association_list,
       configurations: configurations_search_list,
-      discarded: discarded_at.present?
+      discarded: discarded_at.present?,
+      visibility: visibility
     }
   end
 
@@ -96,6 +103,23 @@ class RequirementBlock < ApplicationRecord
   end
 
   private
+
+  def early_access_on_appropriate_template
+    return unless early_access?
+    # Fetch associated requirement templates through requirement_template_sections
+    associated_templates =
+      requirement_template_sections.map(&:requirement_template)
+
+    # Check if all associated templates satisfy early_access? check
+    unless associated_templates.all?(&:early_access?)
+      errors.add(
+        :visibility,
+        I18n.t(
+          "activerecord.errors.models.requirement_block.attributes.visibility.wrong_requirement_template_type"
+        )
+      )
+    end
+  end
 
   def refresh_search_index
     RequirementBlock.search_index.refresh

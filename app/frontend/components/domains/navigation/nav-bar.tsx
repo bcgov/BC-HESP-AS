@@ -44,6 +44,18 @@ function isTemplateEditPath(path: string): boolean {
   return regex.test(path)
 }
 
+function isEarlyAccessTemplateEditPath(path: string): boolean {
+  const regex = /^\/early-access?\/requirement-templates\/([a-f\d-]+)\/edit$/
+
+  return regex.test(path)
+}
+
+function isEarlyAccessTemplateViewPath(path: string): boolean {
+  const regex = /^\/early-access\/requirement-templates\/([a-f\d-]+)$/
+
+  return regex.test(path)
+}
+
 function isDigitalPermitEditPath(path: string): boolean {
   const regex = /^\/digital-building-permits\/([a-f\d-]+)\/edit$/
 
@@ -74,6 +86,8 @@ function shouldHideSubNavbarForPath(path: string): boolean {
   const matchers: Array<(path: string) => boolean> = [
     (path) => path === "/",
     isTemplateEditPath,
+    isEarlyAccessTemplateEditPath,
+    isEarlyAccessTemplateViewPath,
     isTemplateVersionPath,
     isPermitApplicationEditPath,
     isPermitApplicationPath,
@@ -149,6 +163,7 @@ export const NavBar = observer(function NavBar() {
                   </Text>
                 </Flex>
               )}
+
               {currentUser?.isRegionalReviewManager && (
                 <VStack align="flex-end" gap={1}>
                   <Text color="whiteAlpha.700" textAlign="right" variant="tiny_uppercase">
@@ -177,6 +192,8 @@ export const NavBar = observer(function NavBar() {
               )}
               <NavBarMenu />
             </HStack>
+            {/* TODO: Enable sandboxes */}
+            {/* {currentUser?.isReviewStaff && <NavSandboxSelect />} */}
           </Flex>
         </Container>
       </Box>
@@ -257,6 +274,8 @@ const NavBarMenu = observer(function NavBarMenu({}: INavBarMenuProps) {
     </MenuGroup>
   )
 
+  const reviewStaffOnlyItems = <></>
+
   const reviewManagerOnlyItems = (
     <MenuGroup>
       <NavMenuItem
@@ -336,6 +355,7 @@ const NavBarMenu = observer(function NavBarMenu({}: INavBarMenuProps) {
                     <NavMenuItem label={t("home.jurisdictionsTitle")} to={"/jurisdictions"} />
                   )}
                   {currentUser?.isSuperAdmin && superAdminOnlyItems}
+                  {currentUser?.isReviewStaff && reviewStaffOnlyItems}
                   {(currentUser?.isReviewManager || currentUser?.isRegionalReviewManager) && reviewManagerOnlyItems}
                   {(currentUser?.isSuperAdmin ||
                     currentUser?.isReviewManager ||
