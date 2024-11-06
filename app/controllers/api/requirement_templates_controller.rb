@@ -262,8 +262,12 @@ class Api::RequirementTemplatesController < Api::ApplicationController
 
   def invite_previewers
     authorize @requirement_template
-    service = EarlyAccess::PreviewManagementService.new(@requirement_template)
 
+    if previewer_invite_params[:emails].blank?
+      render_error "requirement_template.invite_previewers_error" and return
+    end
+
+    service = EarlyAccess::PreviewManagementService.new(@requirement_template)
     result = service.invite_previewers!(previewer_invite_params[:emails])
 
     if result[:previews].empty?
