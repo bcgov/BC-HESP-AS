@@ -212,7 +212,8 @@ class RequirementTemplate < ApplicationRecord
       discarded: discarded_at.present?,
       assignee: assignee&.name,
       visibility: visibility,
-      public: public?
+      public: public?,
+      created_at: created_at
     }
   end
 

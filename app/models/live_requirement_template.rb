@@ -6,6 +6,8 @@ class LiveRequirementTemplate < RequirementTemplate
   end
 
   def unique_classification_for_undiscarded
+    return unless discarded_at.nil?
+
     existing_record =
       LiveRequirementTemplate.find_by(
         permit_type_id: permit_type_id,

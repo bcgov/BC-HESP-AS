@@ -133,4 +133,138 @@ RSpec.describe Api::RequirementTemplatesController, type: :controller do
       end
     end
   end
+
+  describe "POST #invite_previewers" do
+    let(:live_requirement_template) do
+      create(
+        :live_requirement_template,
+        first_nations: false,
+        activity: activity,
+        permit_type: permit_type
+      )
+    end
+    let(:early_access_requirement_template) do
+      create(
+        :early_access_requirement_template,
+        first_nations: false,
+        activity: activity,
+        permit_type: permit_type
+      )
+    end
+    let(:service_instance) do
+      instance_double(EarlyAccess::PreviewManagementService)
+    end
+
+    before do
+      allow(EarlyAccess::PreviewManagementService).to receive(:new).and_return(
+        service_instance
+      )
+    end
+
+    context "when inviting previewers successfully" do
+      let(:previewer_emails) { %w[user1@example.com user2@example.com] }
+      let(:previews) do
+        [double("EarlyAccessPreview"), double("EarlyAccessPreview")]
+      end
+
+      before do
+        allow(service_instance).to receive(:invite_previewers!).with(
+          previewer_emails
+        ).and_return({ previews: previews, failed_emails: [] })
+      end
+
+      it "invokes the service with correct parameters and returns success response" do
+        post :invite_previewers,
+             params: {
+               id: early_access_requirement_template.id,
+               emails: previewer_emails
+             }
+        expect(EarlyAccess::PreviewManagementService).to have_received(
+          :new
+        ).with(early_access_requirement_template)
+        expect(service_instance).to have_received(:invite_previewers!).with(
+          previewer_emails
+        )
+
+        expect(response).to have_http_status(:success)
+        expect(json_response).to include("meta", "data")
+        expect(json_response["meta"]["message"]["message"]).to include(
+          "Successfully invited previewers"
+        )
+      end
+    end
+
+    context "when providing invalid emails" do
+      let(:previewer_emails) { %w[invalid_email user2@example.com] }
+      let(:failed_emails) do
+        [{ email: "invalid_email", error: "Invalid email format" }]
+      end
+
+      before do
+        allow(service_instance).to receive(:invite_previewers!).with(
+          previewer_emails
+        ).and_return({ previews: [], failed_emails: failed_emails })
+      end
+
+      it "invokes the service and returns an error response with invalid emails" do
+        post :invite_previewers,
+             params: {
+               id: early_access_requirement_template.id,
+               emails: previewer_emails
+             }
+        expect(EarlyAccess::PreviewManagementService).to have_received(
+          :new
+        ).with(early_access_requirement_template)
+        expect(service_instance).to have_received(:invite_previewers!).with(
+          previewer_emails
+        )
+
+        expect(response).to have_http_status(400)
+        expect(json_response["meta"]["message"]["message"]).to include(
+          "Previewers could not be invited"
+        )
+      end
+    end
+
+    context "when requirement template is wrong type" do
+      it "does not invoke the service and returns a 400 error" do
+        post :invite_previewers,
+             params: {
+               id: live_requirement_template.id,
+               emails: ["user@example.com"]
+             }
+
+        expect(EarlyAccess::PreviewManagementService).not_to have_received(:new)
+
+        expect(response).to have_http_status(403)
+      end
+    end
+
+    context "when no previewers are provided" do
+      it "does not invoke the service and returns a bad request error" do
+        post :invite_previewers,
+             params: {
+               id: early_access_requirement_template.id,
+               emails: []
+             }
+
+        expect(EarlyAccess::PreviewManagementService).not_to have_received(:new)
+
+        expect(response).to have_http_status(:bad_request)
+        expect(json_response["meta"]["message"]["message"]).to include(
+          "Previewers could not be invited"
+        )
+      end
+    end
+
+    context "when the service raises an unexpected error" do
+      let(:previewer_emails) { ["user1@example.com"] }
+
+      before do
+        allow(service_instance).to receive(:invite_previewers!).with(
+          previewer_emails
+        ).and_raise(StandardError.new("Unexpected error"))
+      end
+    end
+  end
 end

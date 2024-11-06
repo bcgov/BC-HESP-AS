@@ -11,7 +11,7 @@ class EarlyAccessPreview < ApplicationRecord
   validates :expires_at, presence: true
   delegate :frontend_url, to: :early_access_requirement_template
 
-  def extend
+  def extend_access
     self.expires_at = nil
     set_expires_at
     save
